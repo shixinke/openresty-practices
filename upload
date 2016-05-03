@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> 演示 - Web Uploader</title>
+    <link rel="stylesheet" type="text/css" href="webuploader/css/webuploader.css">
+    
+    <link rel="stylesheet" type="text/css" href="webuploader/css/upload.css">
+    
+</head>
+
+<body>
+    <div id="wrapper">
+        <div class="page-body">
+            <div id="post-container" class="container">
+                <div class="page-container">
+                    <h1 id="demo">Demo</h1>
+                    <p>您可以尝试文件拖拽，使用QQ截屏工具，然后激活窗口后粘贴，或者点击添加图片按钮，来体验此demo.</p>
+                    <div id="uploader" class="wu-example">
+                        <div class="queueList">
+                            <div id="dndArea" class="placeholder">
+                                <div id="filePicker"></div>
+                                <p>或将照片拖到这里，单次最多可选300张</p>
+                            </div>
+                        </div>
+                       
+                    </div>
+					
+
+                    <div id="fileList">
+                        
+                    </div>
+                </div>
+
+            </div> 
+        </div>
+    </div>    
+    <script type="text/javascript">
+    // 添加全局站点信息
+    var BASE_URL = 'webuploader';
+    </script>
+    <script type="text/javascript" src="webuploader/js/jquery.min.js"></script>
+    <script type="text/javascript" src="webuploader/js/webuploader.min.js"></script>
+    <script type="text/javascript">
+        // 初始化Web Uploader
+        var uploader = WebUploader.create({
+
+            // 选完文件后，是否自动上传。
+            auto: true,
+
+            // swf文件路径
+            swf: BASE_URL + '/images/Uploader.swf',
+
+            // 文件接收服务端。
+            server: '/upload',
+
+            // 选择文件的按钮。可选。
+            // 内部根据当前运行是创建，可能是input元素，也可能是flash.
+            pick: {
+                id: '#filePicker',
+                label: '点击选择图片'
+            },
+            dnd: '#uploader .queueList',
+            paste: document.body,
+
+            // 只允许选择图片文件。
+            accept: {
+                title: 'Images',
+                extensions: 'gif,jpg,jpeg,bmp,png',
+                mimeTypes: 'image/*'
+            }
+
+        });
+       
+        uploader.on( 'uploadAccept', function( file, response ) {
+            console.log(response)
+            if (typeof response != 'undefined' && typeof response.code != 'undefined') {
+                if (response.code == 200) {
+                    $('#fileList').append('<img src="/'+response.imgurl+'">');
+                } else {
+                    alert(response.msg)
+                }
+            } else {
+                console.log(response);
+            }
+        });
+
+
+        uploader.on( 'uploadError', function( file ) {
+            $( '#'+file.id ).find('p.state').text('上传出错');
+        });
+
+        uploader.on( 'uploadComplete', function( file ) {
+            $( '#'+file.id ).find('.progress').fadeOut();
+        });
+
+
+
+    </script>
+</body>
+</html>
