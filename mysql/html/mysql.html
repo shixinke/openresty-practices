@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>mysql练习</title>
+	<style type="text/css">
+	*{margin:0;padding:0;}
+	.wrap{margin:10px;}
+	ul{line-height:35px;}
+	form{margin:10px;}
+	table{border:1px solid #ccc;width:60%;}
+	table td{text-align:center;line-height:30px;}
+	.mask{background:#ccc;opacity:0.5;position:absolute;top:0;left:0;width:100%;height:100%;display:none;}
+	.dialog{background:#fff;position:absolute;left:30%;top:20%;padding:20px;border:5px solid #ccc;border-radius:5px;display:none;}
+
+	</style>
+</head>
+<body>
+	<div class="wrap">
+		<h1>项目</h1>
+	
+		<form>
+		名称：<input type="text" name="name" id="addname">
+		<input type="button" name="submit" value="添加" id="addBtn">
+		</form>
+		<table>
+			<thead>
+				<th>ID</th>
+				<th>名称</th>
+				<th>操作</th>
+			</thead>
+			<tbody id="tbody">
+				
+			</tbody>
+		</table>
+	</div>
+	<div class="mask"></div>
+	<div class="dialog">
+			ID：<input type="text" name="id" id="id" readonly="readonly">
+			名称：<input type="text" name="name" id="name" >
+			<input type="submit" name="submit" value="修改" id="updateBtn">
+	</div>
+	<script type="text/javascript" src="jquery.min.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			var $tbody = $('#tbody');
+			function lists() {
+				$.ajax({
+					url:'/mysql?action=lists',
+					type:'post',
+					dataType:'json',
+					success:function(res){
+						//console.log(res);
+						if (res.code == 200) {
+							var tpl = '';
+							$.each(res.data, function(k, v){
+								tpl += '<tr><td>'+v.id+'</td><td>'+v.name+'</td><td><a href="javascript:;" data-id="'+v.id+'" class="edit">编辑</a>  &nbsp;<a href="javascript:;" class="delRow" data-id="'+v.id+'">删除</a></td></tr>';
+							});
+							
+							$tbody.html(tpl);
+						} else {
+							console.log(res.msg);
+						}
+					}
+				})
+			}
+			
+			lists();
+			$('#addBtn').click(function(){
+				var name = $('#addname').val();
+				$.ajax({
+					url:'/mysql?action=add',
+					type:'post',
+					dataType:'json',
+					data:{name:name},
+					success:function(res){
+						//console.log(res);
+						if (res.code == 200) {
+							lists();
+						} else {
+							console.log(res.msg);
+						}
+					}
+				})
+			});
+			$('#tbody').on('click', '.edit', function(){
+				var id = $(this).attr('data-id');
+				$.ajax({
+					url:'/mysql?action=detail',
+					type:'post',
+					dataType:'json',
+					data:{id:id},
+					success:function(res){
+						//console.log(res);
+						if (res.code == 200) {
+							$('#id').val(res.data.id);
+							$('#name').val(res.data.name);
+							$('.mask').show();
+							$('.dialog').show();
+						} else {
+							console.log(res.msg);
+						}
+					}
+				})
+			});
+			$(document).on('click', '#updateBtn', function(){
+				var id = $('#id').val();
+				var name = $('#name').val();
+				$.ajax({
+					url:'/mysql?action=update',
+					type:'post',
+					dataType:'json',
+					data:{id:id, name:name},
+					success:function(res){
+						//console.log(res);
+						if (res.code == 200) {
+							$('.mask').hide();
+							$('.dialog').hide();
+							lists();
+						} else {
+							console.log(res.msg);
+						}
+					}
+				})
+			});
+			$('#tbody').on('click', '.delRow', function(){
+				var id = $(this).attr('data-id');
+				var $row = $(this).parents('tr');
+				$.ajax({
+					url:'/mysql?action=delete',
+					type:'post',
+					dataType:'json',
+					data:{id:id},
+					success:function(res){
+						//console.log(res);
+						if (res.code == 200) {
+							$row.remove();
+						} else {
+							console.log(res.msg);
+						}
+					}
+				})
+			});
+			
+		})
+	</script>
+</body>
+</html>
