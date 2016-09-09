@@ -2,4 +2,4 @@
 
 效果预览图：
 
-https://github.com/shixinke/openresty-practices/blob/master/websocket/vmstats.png
+![](https://github.com/shixinke/openresty-practices/blob/master/websocket/vmstats.png)
